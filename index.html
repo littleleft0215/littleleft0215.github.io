@@ -297,6 +297,176 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/Lab2-二进制炸弹/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Little left">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/blog-logo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/10/Lab2-二进制炸弹/" itemprop="url">Lab2:二进制炸弹</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-10T14:26:29+08:00">
+                2019-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>以下是我大二上学期计算机系统基础的课程作业，花了很长一段时间，记录一下破解过程。</p>
+<h3 id="实验简介："><a href="#实验简介：" class="headerlink" title="实验简介："></a>实验简介：</h3><p>在本实验中，你需要使用课程所学知识拆除一个“binary bombs”，从而加强对程序的机器级表示、汇编语言、调试器和逆向工程等方面知识的理解和掌握。 一个“binary bombs”（二进制炸弹，下文将简称为炸弹）是一个Linux可执行程序，包含了6个阶段（或层次、关卡）以及1个隐藏阶段。炸弹运行的每个阶段要求你输入一个特定字符串，你的输入符合程序预期的输入，该阶段的炸弹就被拆除引信即解除了，否则炸弹“爆炸”打印输出 “BOOM!!!”并转到下一阶段等待你的输入。实验的目标是拆除尽可能多阶段的炸弹。 </p>
+<p>每个炸弹阶段考察了机器级程序语言的一个不同方面： </p>
+<p>​    阶段1：字符串比较 </p>
+<p>​    阶段2：循环 </p>
+<p>​    阶段3：条件/分支 </p>
+<p>​    阶段4：递归调用和栈 </p>
+<p>​    阶段5：指针 </p>
+<p>​    阶段6：链表/指针/结构 </p>
+<p>隐藏阶段只有当你在阶段4的拆解字符串后再附加一特定字符串后才会出现（作为最后一个阶段）。 </p>
+<p>为完成二进制炸弹拆除任务，你需要使用gdb调试器和objdump来反汇编炸弹的可执行文件并单步跟踪每一阶段的机器代码（例如可在每一阶段的开始代码前和引爆炸弹的函数前设置断点），从中理解每一汇编语言代码的行为和作用，进而设法推断拆除炸弹所需的目标字符串。 </p>
+<h4 id="实验语言：c语言，汇编语言"><a href="#实验语言：c语言，汇编语言" class="headerlink" title="实验语言：c语言，汇编语言"></a>实验语言：c语言，汇编语言</h4><h4 id="实验环境-Linux-i386-32bits"><a href="#实验环境-Linux-i386-32bits" class="headerlink" title="实验环境: Linux i386(32bits)"></a>实验环境: Linux i386(32bits)</h4><h4 id="实验数据："><a href="#实验数据：" class="headerlink" title="实验数据："></a>实验数据：</h4><p>​    在本实验中，每位学生会得到一个包含以下内容的TAR文件，文件已上传至群文件并按照学号顺序进行命名了，请自行下载，将该文件放置在本地目录中并使用“tar xf xxxxxxxx.tar”命令将其中包含的文件提取出来： </p>
+<p>​        bomb：二进制可执行bomb程序 </p>
+<p>​        bomb.c：bomb程序的main函数 </p>
+<p>运行./bomb可执行程序时可使用0或1个命令行参数（详见bomb.c源文件中的main()函数）。如果运行时不指定参数，则该程序打印出欢迎信息后，期望你按行输入每一阶段用来拆除炸弹的字符串，根据你当前输入的字符串决定你是通过相应阶段还是引爆该阶段的炸弹。 </p>
+<p>你也可将拆除每一阶段炸弹的字符串按行组织在一个文本文件中（就像你需要提交的实验结果文件，见下说明），然后作为运行程序时的唯一一个命令行参数传给程序，程序依次检查对应每一阶段的字符串来决定炸弹拆除成败。</p>
+<h3 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">phase_1:</span><br><span class="line">8048aae:	55                   	push   %ebp</span><br><span class="line">8048aaf:	89 e5                	mov    %esp,%ebp</span><br><span class="line">8048ab1:	83 ec 10             	sub    $0x10,%esp #创建栈空间</span><br><span class="line">8048ab4:	68 8c 9e 04 08       	push   $0x8049e8c </span><br><span class="line">8048ab9:	ff 75 08             	pushl  0x8(%ebp)  #地址存入</span><br><span class="line"></span><br><span class="line">8048abc:	e8 2d 04 00 00       	call   8048eee &lt;strings_not_equal&gt; </span><br><span class="line">                             #由此判断这里可能让输入一个字符串，判断字符串是否相等</span><br><span class="line">                             #看strings_not_equal 字符串相等时 eax为0</span><br><span class="line">8048ac1:	83 c4 10             	add    $0x10,%esp </span><br><span class="line">8048ac4:	85 c0                	test   %eax,%eax #判断%eax是否为0</span><br><span class="line">8048ac6:	75 02                	jne    8048aca &lt;phase_1+0x1c&gt;</span><br><span class="line">            #不为0就跳转到8048aca，炸弹爆炸</span><br><span class="line">			#为0就执行leave+ret，即eax中的值为全0时，字符串才是成功匹配的</span><br><span class="line">8048ac8:	c9                   	leave  </span><br><span class="line">8048ac9:	c3                   	ret    </span><br><span class="line">8048aca:	e8 20 05 00 00       	call   8048fef &lt;explode_bomb&gt; </span><br><span class="line">8048acf:	eb f7                	jmp    8048ac8 &lt;phase_1+0x1a&gt;</span><br></pre></td></tr></table></figure>
+
+<p>全部分析完毕，可以推测出，进行比较的两个字符串分别是来自内存地址为0x8049e8c位置的字符串和phase_1上级函数的参数。进入gdb调试，对内存0x8049e8c位置内容以字符串类型查看：</p>
+<p><img src="http://ss1.sinaimg.cn/large/007IZMVBly1g6uf81a7hbj30lf069gnj&690" alt></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/阿婆私房菜部分bug与debug/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -825,7 +995,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
