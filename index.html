@@ -297,6 +297,185 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/阿婆私房菜部分bug与debug/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Little left">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/blog-logo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/10/阿婆私房菜部分bug与debug/" itemprop="url">阿婆私房菜部分bug与debug</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-10T10:30:11+08:00">
+                2019-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="销售排行榜bug"><a href="#销售排行榜bug" class="headerlink" title="销售排行榜bug"></a>销售排行榜bug</h2><ol>
+<li>找不到如何更好地触发排行榜，把数据上传到request上，一直以为还要写一个servlet。</li>
+<li>利用多表查询想要获得排行榜的菜品名和销量数据，一直获取不成功。sql语句如下：</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">name</span>,<span class="keyword">sum</span>(menusum) <span class="keyword">as</span> sums <span class="keyword">FROM</span> menus <span class="keyword">INNER</span> <span class="keyword">JOIN</span> orders <span class="keyword">ON</span> orders.menuid=menus.id <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span> <span class="keyword">order</span> <span class="keyword">by</span> sums <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="销售排行榜debug"><a href="#销售排行榜debug" class="headerlink" title="销售排行榜debug"></a>销售排行榜debug</h2><ol>
+<li><p>应该把下列代码写在在indexservlet的doget方法里面，就可以在打开网站的时候完美获得数据，我之前居然没想到（我太蠢了）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Rank&gt; rank=rankService.getRankAll();</span><br><span class="line">request.setAttribute(<span class="string">"rank"</span>, rank);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>那个sql语句中的sum函数将销量转化为double类型，起初我以为是integer类型，试了一下还是失败了，最后在控制台报错中发现应该使用Double类型，就可以完美获得排行榜数据了。</p>
+</li>
+</ol>
+<h2 id="我的餐车中数量加减bug与debug"><a href="#我的餐车中数量加减bug与debug" class="headerlink" title="我的餐车中数量加减bug与debug"></a>我的餐车中数量加减bug与debug</h2><p>这个是我自己添加的功能，不属于项目规划书里面。</p>
+<ol>
+<li><p>由于我根本不会写css和jsp代码，勉强能看懂，想要添加数量加减的样式开始还是出了一些问题，加减符号出现在订餐信息列表上面，但是逻辑上还是在foreach循环里面。</p>
+<p>对于同我一样不太懂jsp和css代码的同学，可以同我一样用浏览器调试，找到你想要添加的位置，就可以找到相关的代码块，然后把加减的样式放在其中</p>
+</li>
+<li><p>数量加减只是实现了静态页面数量的加减，（用javascript写的函数），后来发现根本没有改变菜品的数量，和总价。</p>
+<p>我一直以为不用servlet就能解决，弄了很久还是选择用servlet解决，网上找的方法都不靠谱，用servlet解决方法就很多，这里写我能想到的算法复杂度最低的</p>
+<p>首先通过varStatus=”status”来获得foreach循环的位置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;c:forEach items="$&#123;sessionScope.shoppingCar &#125;" var="car" varStatus="status"&gt;</span><br></pre></td></tr></table></figure>
+
+<p>通过carindex=${status.index} ，将菜品在购物车list的index值 返回到servlet中,在servlet中通过以下代码的方法修改值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Object[] a=carList.toArray();</span><br><span class="line">car=(ShoppingCar) a[carindex];<span class="comment">//利用index找到carlist中的菜品，然后修改。</span></span><br><span class="line">car.setSum(car.getSum()+<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>以上是部分bug与debug，希望能帮助到大家</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/hello-hexo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -646,7 +825,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
